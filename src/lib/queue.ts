@@ -2,7 +2,7 @@ import { Queue } from 'bullmq';
 import redis from './redis';
 
 export const eventQueue = new Queue('events', {
-  connection: redis,
+  connection: redis as any,
   defaultJobOptions: {
     attempts: 3,
     backoff: { type: 'exponential', delay: 1000 },
@@ -12,7 +12,7 @@ export const eventQueue = new Queue('events', {
 });
 
 export const notificationQueue = new Queue('notifications', {
-  connection: redis,
+  connection: redis as any,
   defaultJobOptions: {
     attempts: 3,
     backoff: { type: 'exponential', delay: 2000 },
@@ -20,7 +20,7 @@ export const notificationQueue = new Queue('notifications', {
 });
 
 export const analyticsQueue = new Queue('analytics', {
-  connection: redis,
+  connection: redis as any,
   defaultJobOptions: {
     attempts: 2,
     removeOnComplete: { age: 3600 },
@@ -28,7 +28,7 @@ export const analyticsQueue = new Queue('analytics', {
 });
 
 export const aiQueue = new Queue('ai', {
-  connection: redis,
+  connection: redis as any,
   defaultJobOptions: {
     attempts: 2,
     timeout: 60000,
