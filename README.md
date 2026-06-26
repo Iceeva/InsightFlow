@@ -2,7 +2,7 @@
 
 > Real-time analytics platform for modern businesses. Track events, build custom dashboards, and gain insights with AI-powered analytics.
 
-![Next.js](https://img.shields.io/badge/Next.js-15-black) ![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue) ![Prisma](https://img.shields.io/badge/Prisma-6-teal) ![TailwindCSS](https://img.shields.io/badge/Tailwind-3.4-sky) ![License](https://img.shields.io/badge/License-MIT-green)
+![Next.js](https://img.shields.io/badge/Next.js-15-black) ![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue) ![Prisma](https://img.shields.io/badge/Prisma-6-teal) ![TailwindCSS](https://img.shields.io/badge/Tailwind-3.4-sky) ![i18n](https://img.shields.io/badge/i18n-EN%20%7C%20FR-purple) ![License](https://img.shields.io/badge/License-MIT-green)
 
 ## ✨ Features
 
@@ -18,6 +18,12 @@
 - **Anomaly Detection** - Statistical Z-score based anomaly alerting
 - **Spike Detection** - Real-time traffic spike identification
 - **Auto-Insights** - Natural language summaries of your data
+
+### 🌍 Bilingual Support (EN / FR)
+- **English & French** - Full UI translation across all pages
+- **Language Switcher** - Toggle EN/FR from the header, navbar, and auth pages
+- **Persistent Preference** - Language choice saved in `localStorage`
+- **Zero Config** - No URL routing change, no rebuild needed
 
 ### 🔐 Enterprise Security
 - **Authentication** - JWT + OAuth (Google/GitHub) + Magic Link
@@ -54,6 +60,7 @@
 | **State** | Zustand + React Query |
 | **Charts** | Recharts |
 | **Animations** | Framer Motion |
+| **i18n** | Custom React Context + JSON locales |
 | **Database** | PostgreSQL + Prisma 6 |
 | **Cache** | Redis (ioredis) |
 | **Queue** | BullMQ |
@@ -100,12 +107,19 @@ insightflow/
 │   │   │   ├── team/          # Team management
 │   │   │   ├── api-keys/      # API key management
 │   │   │   └── settings/      # Profile, workspace, security
-│   │   ├── layout.tsx         # Root layout
+│   │   ├── layout.tsx         # Root layout (wraps I18nProvider)
 │   │   └── page.tsx           # Landing page
 │   ├── components/
 │   │   ├── charts/            # LineChart, BarChart, PieChart
+│   │   ├── i18n/              # LanguageSwitcher component  ← NEW
 │   │   ├── layout/            # Sidebar, Header
 │   │   └── ui/                # StatCard, reusable UI
+│   ├── i18n/                  # ← NEW - i18n system
+│   │   ├── context.tsx        # I18nProvider + useI18n() hook
+│   │   ├── index.ts           # Locale loader + Locale type
+│   │   └── locales/
+│   │       ├── en.json        # English translations (~150 keys)
+│   │       └── fr.json        # French translations (~150 keys)
 │   ├── lib/
 │   │   ├── auth.ts            # JWT, hashing, RBAC middleware
 │   │   ├── prisma.ts          # Prisma client singleton
@@ -131,6 +145,46 @@ insightflow/
 ├── vercel.json                # Vercel deployment config
 └── package.json               # Dependencies & scripts
 ```
+
+## 🌍 Internationalisation (i18n)
+
+InsightFlow supporte l'anglais et le français. Le système est léger, sans dépendance externe.
+
+### Architecture
+
+```
+src/i18n/
+├── locales/
+│   ├── en.json     # Clés anglaises
+│   └── fr.json     # Clés françaises
+├── index.ts        # Chargeur + type Locale
+└── context.tsx     # I18nProvider + hook useI18n()
+```
+
+### Utilisation dans un composant
+
+```tsx
+import { useI18n } from '@/i18n/context';
+
+export default function MyComponent() {
+  const { t } = useI18n();
+
+  return <h1>{t('analytics.title')}</h1>;
+}
+```
+
+### Ajouter une nouvelle langue
+
+1. Créer `src/i18n/locales/de.json` (copier `en.json` et traduire)
+2. Dans `src/i18n/index.ts`, ajouter `'de'` au type `Locale` et à l'objet `translations`
+3. Dans `src/components/i18n/LanguageSwitcher.tsx`, ajouter `'de'` au tableau de langues
+
+### Ajouter une nouvelle clé de traduction
+
+1. Ajouter la clé dans `en.json` et `fr.json`
+2. L'utiliser dans le composant avec `t('section.clé')`
+
+Les clés sont organisées par section : `common`, `nav`, `landing`, `auth`, `analytics`, `events`, `dashboards`, `funnels`, `retention`, `ai`, `apiKeys`, `team`, `settings`.
 
 ## 🚀 Getting Started
 
@@ -256,6 +310,6 @@ docker build -t insightflow .
 docker run -p 3000:3000 insightflow
 ```
 
-## 📄 Licence
+## 📜 License
 
 MIT © 2026 InsightFlow - Tous droits réservés.
