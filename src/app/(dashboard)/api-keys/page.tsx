@@ -38,12 +38,12 @@ export default function ApiKeysPage() {
           <p className="text-sm text-muted-foreground mt-1">{t('apiKeys.subtitle')}</p>
         </div>
         <div className="flex gap-2">
-          <button onClick={() => setShowSnippet(!showSnippet)}
+          <button type="button" onClick={() => setShowSnippet(!showSnippet)}
             className="px-3 py-2 rounded-xl text-sm font-medium border border-border hover:bg-accent transition flex items-center gap-2">
             <Code className="w-3.5 h-3.5" />
             {t('apiKeys.quickStart')}
           </button>
-          <button onClick={() => setShowCreate(!showCreate)}
+          <button type="button" onClick={() => setShowCreate(!showCreate)}
             className="px-3 py-2 bg-primary text-primary-foreground rounded-xl text-sm font-medium hover:bg-primary/90 transition flex items-center gap-2">
             <Plus className="w-3.5 h-3.5" />
             {t('apiKeys.newKey')}
@@ -56,7 +56,7 @@ export default function ApiKeysPage() {
           className="rounded-2xl border border-border bg-card overflow-hidden">
           <div className="px-5 py-3 border-b border-border bg-muted/20 flex items-center justify-between">
             <span className="text-sm font-medium">{t('apiKeys.quickStartTitle')}</span>
-            <button onClick={() => copyKey('npm install @insightflow/js')} className="text-xs text-muted-foreground hover:text-foreground">
+            <button type="button" onClick={() => copyKey('npm install @insightflow/js')} className="text-xs text-muted-foreground hover:text-foreground">
               <Copy className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -105,7 +105,7 @@ analytics.identify('user_123', {
                 </div>
                 <div className="flex items-center gap-3 mt-1">
                   <code className="text-xs font-mono text-muted-foreground">{apiKey.key}</code>
-                  <button onClick={() => copyKey(apiKey.key)} className="text-muted-foreground hover:text-foreground">
+                  <button type="button" onClick={() => copyKey(apiKey.key)} className="text-muted-foreground hover:text-foreground">
                     {copied === apiKey.key ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
                   </button>
                 </div>
@@ -118,7 +118,7 @@ analytics.identify('user_123', {
                   ))}
                 </div>
               </div>
-              <button className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-destructive/10 hover:text-destructive transition">
+              <button type="button" aria-label="Delete API key" title="Delete API key" className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-destructive/10 hover:text-destructive transition">
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>

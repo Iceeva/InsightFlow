@@ -14,26 +14,38 @@ export default function DashboardsPage() {
   const [editMode, setEditMode] = useState(false);
 
   const demoWidgets = [
-    { id: '1', titleKey: 'dashboards.eventTrends', type: 'line', size: 'large', data: Array.from({ length: 14 }, (_, i) => ({
-      date: `Day ${i + 1}`, events: 1000 + Math.floor(Math.random() * 2000), users: 300 + Math.floor(Math.random() * 500)
-    }))},
-    { id: '2', titleKey: 'dashboards.topEvents', type: 'bar', size: 'medium', data: [
-      { name: 'page_view', count: 12458 }, { name: 'click', count: 4532 },
-      { name: 'signup', count: 1245 }, { name: 'purchase', count: 328 },
-    ]},
-    { id: '3', titleKey: 'dashboards.devices', type: 'pie', size: 'small', data: [
-      { name: 'Desktop', value: 58 }, { name: 'Mobile', value: 35 }, { name: 'Tablet', value: 7 },
-    ]},
-    { id: '4', titleKey: 'dashboards.countries', type: 'pie', size: 'small', data: [
-      { name: 'US', value: 45 }, { name: 'FR', value: 18 }, { name: 'DE', value: 12 }, { name: 'Other', value: 25 },
-    ]},
-    { id: '5', titleKey: 'dashboards.revenueTrend', type: 'line', size: 'medium', data: Array.from({ length: 14 }, (_, i) => ({
-      date: `Day ${i + 1}`, revenue: 500 + Math.floor(Math.random() * 1500),
-    }))},
-    { id: '6', titleKey: 'dashboards.pageViews', type: 'bar', size: 'medium', data: [
-      { name: '/', count: 8450 }, { name: '/pricing', count: 3200 },
-      { name: '/docs', count: 2800 }, { name: '/blog', count: 1900 },
-    ]},
+    {
+      id: '1', titleKey: 'dashboards.eventTrends', type: 'line', size: 'large', data: Array.from({ length: 14 }, (_, i) => ({
+        date: `Day ${i + 1}`, events: 1000 + Math.floor(Math.random() * 2000), users: 300 + Math.floor(Math.random() * 500)
+      }))
+    },
+    {
+      id: '2', titleKey: 'dashboards.topEvents', type: 'bar', size: 'medium', data: [
+        { name: 'page_view', count: 12458 }, { name: 'click', count: 4532 },
+        { name: 'signup', count: 1245 }, { name: 'purchase', count: 328 },
+      ]
+    },
+    {
+      id: '3', titleKey: 'dashboards.devices', type: 'pie', size: 'small', data: [
+        { name: 'Desktop', value: 58 }, { name: 'Mobile', value: 35 }, { name: 'Tablet', value: 7 },
+      ]
+    },
+    {
+      id: '4', titleKey: 'dashboards.countries', type: 'pie', size: 'small', data: [
+        { name: 'US', value: 45 }, { name: 'FR', value: 18 }, { name: 'DE', value: 12 }, { name: 'Other', value: 25 },
+      ]
+    },
+    {
+      id: '5', titleKey: 'dashboards.revenueTrend', type: 'line', size: 'medium', data: Array.from({ length: 14 }, (_, i) => ({
+        date: `Day ${i + 1}`, revenue: 500 + Math.floor(Math.random() * 1500),
+      }))
+    },
+    {
+      id: '6', titleKey: 'dashboards.pageViews', type: 'bar', size: 'medium', data: [
+        { name: '/', count: 8450 }, { name: '/pricing', count: 3200 },
+        { name: '/docs', count: 2800 }, { name: '/blog', count: 1900 },
+      ]
+    },
   ];
 
   return (
@@ -61,7 +73,7 @@ export default function DashboardsPage() {
         {demoWidgets.map((widget, i) => {
           const colSpan = widget.size === 'large' ? 'col-span-12 lg:col-span-8' :
             widget.size === 'medium' ? 'col-span-12 sm:col-span-6' :
-            'col-span-12 sm:col-span-6 lg:col-span-3';
+              'col-span-12 sm:col-span-6 lg:col-span-3';
 
           return (
             <motion.div key={widget.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
@@ -74,11 +86,11 @@ export default function DashboardsPage() {
                   <h3 className="font-medium text-sm">{t(widget.titleKey)}</h3>
                 </div>
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
-                  <button className="w-6 h-6 rounded flex items-center justify-center hover:bg-accent">
+                  <button title="Maximize widget" aria-label="Maximize widget" className="w-6 h-6 rounded flex items-center justify-center hover:bg-accent">
                     <Maximize2 className="w-3 h-3 text-muted-foreground" />
                   </button>
                   {editMode && (
-                    <button className="w-6 h-6 rounded flex items-center justify-center hover:bg-destructive/10 hover:text-destructive">
+                    <button title="Delete widget" aria-label="Delete widget" className="w-6 h-6 rounded flex items-center justify-center hover:bg-destructive/10 hover:text-destructive">
                       <Trash2 className="w-3 h-3" />
                     </button>
                   )}
@@ -97,7 +109,11 @@ export default function DashboardsPage() {
                 <BarChart data={widget.data} bars={[{ key: 'count', color: '#8b5cf6' }]} height={200} />
               )}
               {widget.type === 'pie' && (
-                <PieChart data={widget.data} height={200} innerRadius={40} />
+                <PieChart
+                  data={widget.data as { name: string; value: number }[]}
+                  height={200}
+                  innerRadius={40}
+                />
               )}
             </motion.div>
           );

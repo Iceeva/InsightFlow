@@ -54,7 +54,7 @@ export default function SettingsPage() {
                     <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
                       <span className="text-xl font-bold text-primary">JD</span>
                     </div>
-                    <button className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                    <button aria-label={t('settings.changeAvatar')} className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
                       <Camera className="w-3 h-3" />
                     </button>
                   </div>
@@ -65,12 +65,12 @@ export default function SettingsPage() {
                 </div>
                 <div className="grid gap-4">
                   <div>
-                    <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('settings.nameLabel')}</label>
-                    <input type="text" defaultValue="John Doe" className="w-full h-10 px-3 rounded-xl border border-input bg-transparent text-sm focus:ring-2 focus:ring-primary outline-none" />
+                    <label htmlFor="profile-name" className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('settings.nameLabel')}</label>
+                    <input id="profile-name" type="text" defaultValue="John Doe" placeholder={t('settings.nameLabel')} className="w-full h-10 px-3 rounded-xl border border-input bg-transparent text-sm focus:ring-2 focus:ring-primary outline-none" />
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('settings.emailLabel')}</label>
-                    <input type="email" defaultValue="john@company.com" className="w-full h-10 px-3 rounded-xl border border-input bg-transparent text-sm focus:ring-2 focus:ring-primary outline-none" />
+                    <label htmlFor="profile-email" className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('settings.emailLabel')}</label>
+                    <input id="profile-email" type="email" defaultValue="john@company.com" placeholder={t('settings.emailLabel')} className="w-full h-10 px-3 rounded-xl border border-input bg-transparent text-sm focus:ring-2 focus:ring-primary outline-none" />
                   </div>
                 </div>
                 <button className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-xl text-sm font-medium hover:bg-primary/90 transition flex items-center gap-2">
@@ -121,7 +121,7 @@ export default function SettingsPage() {
                         <p className="text-sm font-medium">{t(pref.titleKey)}</p>
                         <p className="text-xs text-muted-foreground">{t(pref.descKey)}</p>
                       </div>
-                      <button className={cn('w-10 h-5 rounded-full transition relative', pref.enabled ? 'bg-primary' : 'bg-muted')}>
+                      <button type="button" aria-pressed={pref.enabled} className={cn('w-10 h-5 rounded-full transition relative', pref.enabled ? 'bg-primary' : 'bg-muted')}>
                         <div className={cn('w-4 h-4 rounded-full bg-white absolute top-0.5 transition-all', pref.enabled ? 'left-5' : 'left-0.5')} />
                       </button>
                     </div>

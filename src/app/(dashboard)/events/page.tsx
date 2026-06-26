@@ -55,7 +55,11 @@ export default function EventsPage() {
             className="w-full h-9 pl-10 pr-4 rounded-xl border border-input bg-transparent text-sm focus:ring-2 focus:ring-primary outline-none"
           />
         </div>
-        <select value={nameFilter} onChange={e => { setNameFilter(e.target.value); setPage(1); }}
+        <select
+          value={nameFilter}
+          onChange={e => { setNameFilter(e.target.value); setPage(1); }}
+          aria-label="Filter events"
+          title="Filter events"
           className="h-9 px-3 rounded-xl border border-input bg-transparent text-sm focus:ring-2 focus:ring-primary outline-none">
           <option value="">{t('events.allEvents')}</option>
           {eventNames.map(n => <option key={n} value={n}>{n}</option>)}
@@ -101,12 +105,16 @@ export default function EventsPage() {
         <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-muted/20">
           <span className="text-xs text-muted-foreground">{filtered.length} {t('events.eventsCount')}</span>
           <div className="flex items-center gap-2">
-            <button disabled={page <= 1} onClick={() => setPage(p => p - 1)}
+            <button aria-label={t('events.prevPage')}
+              title={t('events.prevPage')}
+              disabled={page <= 1} onClick={() => setPage(p => p - 1)}
               className="w-8 h-8 rounded-lg flex items-center justify-center border border-border hover:bg-accent disabled:opacity-30 transition">
               <ChevronLeft className="w-4 h-4" />
             </button>
             <span className="text-xs">{page}/{totalPages}</span>
-            <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}
+            <button aria-label={t('events.nextPage')}
+              title={t('events.nextPage')}
+              disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}
               className="w-8 h-8 rounded-lg flex items-center justify-center border border-border hover:bg-accent disabled:opacity-30 transition">
               <ChevronRight className="w-4 h-4" />
             </button>
