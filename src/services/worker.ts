@@ -4,7 +4,7 @@ import prisma from '@/lib/prisma';
 import { detectAnomalies, detectSpikes } from './ai-engine';
 import { notify } from './notification-service';
 import logger from '@/lib/logger';
-import UAParser from 'ua-parser-js';
+import { UAParser } from 'ua-parser-js';
 import geoip from 'geoip-lite';
 
 const connection = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
