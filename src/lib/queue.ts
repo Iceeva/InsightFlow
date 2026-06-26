@@ -31,6 +31,5 @@ export const aiQueue = new Queue('ai', {
   connection: redis as any,
   defaultJobOptions: {
     attempts: 2,
-    timeout: 60000,
   },
 });
