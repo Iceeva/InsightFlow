@@ -1,0 +1,375 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════════════════════════════════════
+// Auth & Multi-Tenant
+// ═══════════════════════════════════════════
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  passwordHash  String?
+  avatarUrl     String?
+  emailVerified DateTime?
+  twoFactorSecret String?
+  twoFactorEnabled Boolean @default(false)
+  role          GlobalRole @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  memberships   Member[]
+  accounts      Account[]
+  sessions      Session[]
+  auditLogs     AuditLog[]
+  notifications Notification[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ═══════════════════════════════════════════
+// Workspace / Organization
+// ═══════════════════════════════════════════
+
+model Workspace {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  plan      Plan     @default(FREE)
+  logoUrl   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  teams      Team[]
+  members    Member[]
+  projects   Project[]
+  apiKeys    ApiKey[]
+  dashboards Dashboard[]
+  auditLogs  AuditLog[]
+  invitations Invitation[]
+
+  @@map("workspaces")
+}
+
+model Team {
+  id          String   @id @default(cuid())
+  name        String
+  workspaceId String
+  createdAt   DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  members   Member[]
+
+  @@map("teams")
+}
+
+model Member {
+  id          String     @id @default(cuid())
+  userId      String
+  workspaceId String
+  teamId      String?
+  role        MemberRole @default(MEMBER)
+  createdAt   DateTime   @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  team      Team?     @relation(fields: [teamId], references: [id])
+
+  @@unique([userId, workspaceId])
+  @@map("members")
+}
+
+model Invitation {
+  id          String         @id @default(cuid())
+  email       String
+  workspaceId String
+  role        MemberRole     @default(MEMBER)
+  token       String         @unique @default(cuid())
+  status      InviteStatus   @default(PENDING)
+  expiresAt   DateTime
+  createdAt   DateTime       @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@map("invitations")
+}
+
+// ═══════════════════════════════════════════
+// Projects & API Keys
+// ═══════════════════════════════════════════
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  workspaceId String
+  platform    Platform @default(WEB)
+  timezone    String   @default("UTC")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  events    Event[]
+  funnels   Funnel[]
+
+  @@map("projects")
+}
+
+model ApiKey {
+  id          String   @id @default(cuid())
+  name        String
+  key         String   @unique
+  workspaceId String
+  projectId   String?
+  scopes      String[] @default(["track"])
+  isActive    Boolean  @default(true)
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([key])
+  @@map("api_keys")
+}
+
+// ═══════════════════════════════════════════
+// Events & Analytics
+// ═══════════════════════════════════════════
+
+model Event {
+  id         String   @id @default(cuid())
+  name       String
+  projectId  String
+  sessionId  String?
+  distinctId String?
+  properties Json     @default("{}")
+  timestamp  DateTime @default(now())
+
+  // Geo & Device
+  country    String?
+  city       String?
+  region     String?
+  os         String?
+  browser    String?
+  device     String?
+  screenSize String?
+
+  // UTM
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  utmTerm     String?
+  utmContent  String?
+
+  // Page
+  url      String?
+  referrer String?
+  path     String?
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, name, timestamp])
+  @@index([projectId, timestamp])
+  @@index([distinctId])
+  @@index([sessionId])
+  @@map("events")
+}
+
+// ═══════════════════════════════════════════
+// Dashboards & Widgets
+// ═══════════════════════════════════════════
+
+model Dashboard {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  workspaceId String
+  isDefault   Boolean  @default(false)
+  layout      Json     @default("[]")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  widgets   Widget[]
+
+  @@map("dashboards")
+}
+
+model Widget {
+  id          String     @id @default(cuid())
+  dashboardId String
+  type        WidgetType
+  title       String
+  config      Json       @default("{}")
+  position    Json       @default("{}")
+  size        Json       @default("{\"w\": 6, \"h\": 4}")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  dashboard Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+
+  @@map("widgets")
+}
+
+// ═══════════════════════════════════════════
+// Funnels & Retention
+// ═══════════════════════════════════════════
+
+model Funnel {
+  id        String   @id @default(cuid())
+  name      String
+  projectId String
+  steps     Json     @default("[]")
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("funnels")
+}
+
+// ═══════════════════════════════════════════
+// Notifications & Audit
+// ═══════════════════════════════════════════
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  body      String
+  data      Json?
+  read      Boolean          @default(false)
+  channel   NotifChannel     @default(IN_APP)
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String
+  workspaceId String
+  action      String
+  entity      String
+  entityId    String?
+  metadata    Json?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id])
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+  @@map("audit_logs")
+}
+
+// ═══════════════════════════════════════════
+// Enums
+// ═══════════════════════════════════════════
+
+enum GlobalRole {
+  USER
+  ADMIN
+  SUPERADMIN
+}
+
+enum MemberRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum Plan {
+  FREE
+  PRO
+  BUSINESS
+  ENTERPRISE
+}
+
+enum Platform {
+  WEB
+  MOBILE
+  API
+}
+
+enum WidgetType {
+  LINE_CHART
+  BAR_CHART
+  PIE_CHART
+  HEATMAP
+  TABLE
+  COUNTER
+  FUNNEL
+  RETENTION
+  MAP
+}
+
+enum NotificationType {
+  ALERT
+  ANOMALY
+  REPORT
+  INVITATION
+  SYSTEM
+}
+
+enum NotifChannel {
+  IN_APP
+  EMAIL
+  PUSH
+  SLACK
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+}
